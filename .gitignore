@@ -1,0 +1,11 @@
+// node modules 
+node_modules
+
+// vscode configs
+.vscode
+
+// linting configs
+.eslintrc.js
+
+// env files
+.env
