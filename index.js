@@ -1,6 +1,6 @@
 // module imports
 require('dotenv').config()
-const cors = require('cors')
+const cors = require('cors') 
 
 // initialize express server
 const express = require('express')
