@@ -12,6 +12,7 @@ async function getScheduledArrivals() {
   startTime.setUTCHours(startTime.getUTCHours() + Math.ceil(startTime.getMinutes()/60),0, 0, 0)
   endTime.setUTCHours(endTime.getUTCHours() + Math.ceil(endTime.getMinutes()/60) + 1,0, 0, 0)
   // log request time and time bounds for arrival data
+  console.log('----START DATA FETCH----')
   console.log(`Fetching scheduled arrivals data at ${fetchTime.toString()}.\nQuery parameters:\n start time: ${startTime.toString()} (${startTime.toISOString()})\n end time: ${endTime.toString()} (${endTime.toISOString()})`)
   // remove milliseconds from ISO time format as per API guidelines AND url encode the values
   startTime = encodeURIComponent(startTime.toISOString().split('.')[0]+'Z')
@@ -706,7 +707,12 @@ async function getScheduledArrivals() {
 async function getPhotoData(tailNumber) {
   const aircraftPhoto = await axios.get(`https://api.planespotters.net/pub/photos/reg/${tailNumber}`)
   if (aircraftPhoto.data.photos.length > 0) {
-    return(aircraftPhoto.data.photos[0].thumbnail_large.src)
+    return({
+      photo: aircraftPhoto.data.photos[0].thumbnail_large.src,
+      width: aircraftPhoto.data.photos[0].thumbnail_large.size.width,
+      link: aircraftPhoto.data.photos[0].link,
+      credit: aircraftPhoto.data.photos[0].photographer,
+    })
   } else return null
 }
 // getPhotoData()
@@ -718,7 +724,7 @@ async function getPhotoData(tailNumber) {
 async function getAirframeData(tailNumber) {
   // get airframe data from app.goflightlabs.com
   try{
-    console.log('goflightlabs.com')
+    console.log('trying goflightlabs.com')
     const airframeDataGoFlightLabs = await axios.get(`https://app.goflightlabs.com/airplanes?access_key=${process.env.flightlabs_api_key}&numberRegistration=${tailNumber}`)
     if (airframeDataGoFlightLabs.data.success){
       console.log(`airframe data for ${tailNumber} from goflightlabs`)
@@ -732,10 +738,9 @@ async function getAirframeData(tailNumber) {
     }
   }
   catch(error) {
-    console.log(error)
     
     // if airframe data not found from flight-labs, scrape data from airport-data.com
-    console.log('airport-data')
+    console.log('trying airport-data')
     const airframeDataAirportData = await scraperAirportData.performScrapingAirportData(tailNumber)
     if(Object.keys(airframeDataAirportData).length > 0) {
       console.log(`airframe data for ${tailNumber} from airport-data`)
@@ -743,7 +748,7 @@ async function getAirframeData(tailNumber) {
     } else {
         
       // if airframe data not found from airport-data.com, scrap airframes.org
-      console.log('airframes.org')
+      console.log('trying airframes.org')
       const airframeDataAirframes = await scraperAirframes.performScrapingAirFrames(tailNumber)
       if(Object.keys(airframeDataAirframes).length > 0) {
         console.log(`airframe data for ${tailNumber} from airframes.org`)

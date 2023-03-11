@@ -11,11 +11,13 @@ const scheduledFunctions = require('./cronjobs')
 
 // middleware 
 app.use(express.json())
+app.use(express.static('build'))
 app.use(cors())
 // scheduledFunctions.initScheduledJobs()
 
 // route handling
-app.get('/', (request, response) => {
+app.get('/data', (request, response) => {
+  console.log('Scheduled arrivals data requested')
   const data = scheduledFunctions.getData()
   response.json(data)
 })
