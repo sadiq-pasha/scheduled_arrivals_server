@@ -21,7 +21,7 @@ async function getScheduledArrivals() {
   //   console.log(endTime)
   
   try {
-    const scheduledArrivalsResponse = await axios.get(`https://aeroapi.flightaware.com/aeroapi/airports/KLAX/flights/scheduled_arrivals?type=Airline&start=${startTime}&end=${endTime}&max_pages=2`,
+    const scheduledArrivalsResponse = await axios.get(`https://aeroapi.flightaware.com/aeroapi/airports/KLAX/flights/scheduled_arrivals?type=Airline&start=${startTime}&end=${endTime}&max_pages=1`,
       {
         headers: {
           'Content-Type': 'application/json',
