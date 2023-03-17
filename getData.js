@@ -126,7 +126,7 @@ async function getPhotoData(tailNumber) {
       })
     } else return null
   } catch (error) {
-    console.log(error.data)    
+    console.log(error)
     return null
   }
 }
