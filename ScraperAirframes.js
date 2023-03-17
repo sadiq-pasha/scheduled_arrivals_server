@@ -11,7 +11,7 @@ async function performScrapingAirFrames(tailNumber) {
       url: `http://www.airframes.org/reg/${tailNumber}`,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-        'Cookie': 'PHPSESSID=9ahb03tkkinb5ejsk2jjaihcs2; afc1=5a813657a813'
+        'Cookie': `${process.env.airframes_cookies}`
       }
     })
     //   console.log(axiosResponse.data)
