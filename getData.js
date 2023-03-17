@@ -1,12 +1,13 @@
 // module imports 
 const axios = require('axios')
-const moment = require('moment')
+// const moment = require('moment')
 // mongoose model for database queries
-const AirframeDataModel = require('./airframeModel')
+// const AirframeDataModel = require('./airframeModel')
 // scheduled function and unknown airframe list
 const cronjobs = require('./cronjobs')
 
 // human readable keys mapping for data from goFlightLabs
+// eslint-disable-next-line no-unused-vars
 const humanReadableDataKeys = {
   airplaneIataType: 'Aircraft Type',
   airplaneId: 'Manufacturers ID',
@@ -131,61 +132,65 @@ async function getPhotoData(tailNumber) {
 }
 
 // get airframe data from database or goflightlabs
+// eslint-disable-next-line no-unused-vars
 async function getAirframeData(tailNumber, unfindableAirframes) {
+// currently disabled: goflightlabs API unavailable
+  return null
+
   // if airframe previously searched and failed, don't try again
-  if (unfindableAirframes.includes(tailNumber)) {
-    console.log(`airframe data for ${tailNumber} is unfindable`)
-    return null
-  }
-  // find airframe data in database
-  const airframeData = await AirframeDataModel.find({registration: tailNumber})
-  if (airframeData.length > 0) {
-    console.log(`airframe data for ${tailNumber} from database`)
-    return airframeData[0].data
-  } else {
-    // query goflightlabs api for airframe data
-    try {
-      const airframeDataGoFlightLabs = await axios.get(`https://app.goflightlabs.com/airplanes?access_key=${process.env.flightlabs_api_key}&numberRegistration=${tailNumber}`)
-      if (airframeDataGoFlightLabs.data.success){
-        console.log(`airframe data for ${tailNumber} from goflightlabs`)
-        // js magic to remove entries with no data. 
-        // use Object.entries to split each key, value pair into an array.
-        // use filter to remove any pair where value[1].length is not greater than 1
-        // use map to convert valid iso 8601 dates into date strings
-        // also map returned keys into human readable keys
-        // use Object.fromEntries to create a new object with the returned values
-        const goflightlabsdata = Object.fromEntries(
-          Object.entries(airframeDataGoFlightLabs.data.data[0])
-            .filter(value => value[1] && value[1].length > 1)
-            .map((value) => {
-              if (Object.keys(humanReadableDataKeys).includes(value[0])){
-                value[0] = humanReadableDataKeys[value[0]]
-              }
-              if (moment(value[1], 'YYYY-MM-DDTHH:mm:ss.sssZ', true).isValid()){
-                return [value[0], new Date(value[1]).toDateString()]
-              }else return [value[0],value[1]]
-            }))
-        // save airframe data to database to avoid repeated queries
-        const newAirframe = new AirframeDataModel({
-          registration: tailNumber,
-          data: goflightlabsdata
-        })
-        console.log('Saving airframe data to database')
-        newAirframe.save()
-        return goflightlabsdata
-      }  else {
-        // if airframe data not found, schedule for scraping
-        console.log(`moving ${tailNumber} to scheduled cronjob`)
-        cronjobs.unknownAirframes(tailNumber)
-        return null
-      }
-    } catch (error) {
-      // if airframe data not found, schedule for scraping
-      console.log(`moving ${tailNumber} to scheduled cronjob`)
-      cronjobs.unknownAirframes(tailNumber)
-      return null
-    }
-  }
+  //   if (unfindableAirframes.includes(tailNumber)) {
+  //     console.log(`airframe data for ${tailNumber} is unfindable`)
+  //     return null
+  //   }
+  //   // find airframe data in database
+  //   const airframeData = await AirframeDataModel.find({registration: tailNumber})
+  //   if (airframeData.length > 0) {
+  //     console.log(`airframe data for ${tailNumber} from database`)
+  //     return airframeData[0].data
+  //   } else {
+  //     // query goflightlabs api for airframe data
+  //     try {
+  //       const airframeDataGoFlightLabs = await axios.get(`https://app.goflightlabs.com/airplanes?access_key=${process.env.flightlabs_api_key}&numberRegistration=${tailNumber}`)
+  //       if (airframeDataGoFlightLabs.data.success){
+  //         console.log(`airframe data for ${tailNumber} from goflightlabs`)
+  //         // js magic to remove entries with no data. 
+  //         // use Object.entries to split each key, value pair into an array.
+  //         // use filter to remove any pair where value[1].length is not greater than 1
+  //         // use map to convert valid iso 8601 dates into date strings
+  //         // also map returned keys into human readable keys
+  //         // use Object.fromEntries to create a new object with the returned values
+  //         const goflightlabsdata = Object.fromEntries(
+  //           Object.entries(airframeDataGoFlightLabs.data.data[0])
+  //             .filter(value => value[1] && value[1].length > 1)
+  //             .map((value) => {
+  //               if (Object.keys(humanReadableDataKeys).includes(value[0])){
+  //                 value[0] = humanReadableDataKeys[value[0]]
+  //               }
+  //               if (moment(value[1], 'YYYY-MM-DDTHH:mm:ss.sssZ', true).isValid()){
+  //                 return [value[0], new Date(value[1]).toDateString()]
+  //               }else return [value[0],value[1]]
+  //             }))
+  //         // save airframe data to database to avoid repeated queries
+  //         const newAirframe = new AirframeDataModel({
+  //           registration: tailNumber,
+  //           data: goflightlabsdata
+  //         })
+  //         console.log('Saving airframe data to database')
+  //         newAirframe.save()
+  //         return goflightlabsdata
+  //       }  else {
+  //         // if airframe data not found, schedule for scraping
+  //         console.log(`moving ${tailNumber} to scheduled cronjob`)
+  //         cronjobs.unknownAirframes(tailNumber)
+  //         return null
+  //       }
+  //     } catch (error) {
+  //       // if airframe data not found, schedule for scraping
+  //       console.log(`moving ${tailNumber} to scheduled cronjob`)
+  //       cronjobs.unknownAirframes(tailNumber)
+  //       return null
+  //     }
+  //   }
 }
 
 // flag for throttling requests if fetch is in progress
