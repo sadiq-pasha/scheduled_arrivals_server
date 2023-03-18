@@ -210,7 +210,7 @@ async function updateData() {
   // get scheduled arrivals data
   const scheduledArrivals = await getScheduledArrivals()
   if(scheduledArrivals === 'error') return ('error')
-  //   console.log(scheduledArrivals)
+  console.log(`flights with registration info: ${scheduledArrivals.length}`)
   
   // get photos
   for (let i=0; i < scheduledArrivals.length; i++) {
