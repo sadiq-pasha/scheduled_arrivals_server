@@ -16,11 +16,10 @@ Partly as a hobby project, but mostly as a portfolio project.
 - [Version History](#version-history)
 - [Insights](#insights)
   - [Built using](#built-using)
-  - [What I learnt](#what-i-learned)
+  - [What I learned](#what-i-learned)
   - [TODO list](#todo-list)
   - [Helpful resources](#helpful-resources)
 - [Author](#author)
-- [Acknowledgments](#acknowledgments)
 
 ## Version History
 
@@ -68,9 +67,9 @@ Partly as a hobby project, but mostly as a portfolio project.
 - `mongoDB` - Database.
 - Mobile-first development mentality.
 
-### What I learnt:
+### What I learned:
 First off, Material UI (MUI). This project was a dive off the deep end into the world of component libraries. 
-Understanding how to read the component documentation and source code is a learnt skill that will allow me to connect the underlying wires in larger codebases. Understanding how MUI overrides class based CSS was crucial. 
+Understanding how to read the component documentation and source code is a learned skill that will allow me to connect the underlying wires in larger codebases. Understanding how MUI overrides class based CSS was crucial. 
 
 MUI components are like PC parts; you can copy the code but you still need to connect the wires and make it work in your specific system. Sometimes the parts fit neatly into a RAM slot, other times you have to read the specifications over and over to make sure you didn't get the wrong part for the job. 
 
@@ -95,7 +94,7 @@ The solution was to throttle requests.
 ```mermaid
 sequenceDiagram
     participant Client
-    box rgb(33,66,88) SERVER
+    box SERVER
     participant Server API
     participant Throttle
     end
@@ -133,6 +132,8 @@ Since the data being sent is list of aircraft landing within the next hour, it d
 ## TODO list
 
 * Currently airframe data fetching is disabled as I have not been able to find a reliable source of airframe information.
+* Add a back to top button.
+* Make website better looking on desktop. Card sizes currently incosistent.
 * This website format could be expanded to include other airports in the future. 
 * I have tried to include comments where necessary, that being said I am a huge fan of well commented code and there can always be more comments.
 

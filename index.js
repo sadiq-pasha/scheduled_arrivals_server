@@ -14,6 +14,9 @@ mongoose.set('strictQuery',false)
 mongoose.connect(`${process.env.mongoDB_url}`)
 console.log('connected to MongoDB')
 
+// request counter
+let requestCounter = 0
+
 // get data function
 const getData = require('./getData')
 
@@ -35,7 +38,8 @@ app.use(cors())
 
 // route handling
 app.get('/data', async(request, response) => {
-  console.log('Scheduled arrivals data requested')
+  requestCounter = requestCounter + 1
+  console.log(`data requested #${requestCounter}`)
   const data = await getData()
   if (data === 'error') {
     response.json({error:'flightaware API unavailable'}).end()
