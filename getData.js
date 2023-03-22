@@ -54,9 +54,7 @@ async function getScheduledArrivals() {
           'x-apikey': `${process.env.flightaware_api_key}`
         }
       })
-    console.log(`scheduled arrivals data fetched for ${scheduledArrivalsResponse.data.scheduled_arrivals.length} flights`)
-    scheduledArrivalsResponse.data.scheduled_arrivals.forEach(flight => console.log(flight.ident))
-   
+
     // extract required flight data from response
     // if flight registration number not present, remove flight from list
     const flightData = scheduledArrivalsResponse.data.scheduled_arrivals.map(({
@@ -121,12 +119,13 @@ async function getPhotoData(tailNumber) {
       return({
         photo: aircraftPhoto.data.photos[0].thumbnail_large.src,
         width: aircraftPhoto.data.photos[0].thumbnail_large.size.width,
+        height: aircraftPhoto.data.photos[0].thumbnail_large.size.height,
         link: aircraftPhoto.data.photos[0].link,
         credit: aircraftPhoto.data.photos[0].photographer,
       })
     } else return null
   } catch (error) {
-    console.log(error)
+    console.log(error.data)
     return null
   }
 }
@@ -202,19 +201,16 @@ let cachedData
 async function updateData() {
   // set flag to delay other requests in queue
   fetchingInProgress = true
-  console.log(`fetching state ${fetchingInProgress}`)
+  console.log('updating cached data')
     
   // get list of unfindable airframes, so no redundant queries are made
   const unfindableAirframes = await cronjobs.getUnfindableData()
-  console.log(`unfindable airframe numbers ${unfindableAirframes}`)
   // get scheduled arrivals data
   const scheduledArrivals = await getScheduledArrivals()
   if(scheduledArrivals === 'error') return ('error')
-  console.log(`flights with registration info: ${scheduledArrivals.length}`)
   
   // get photos
   for (let i=0; i < scheduledArrivals.length; i++) {
-    console.log(`fetching photo for ${scheduledArrivals[i].ident} (${scheduledArrivals[i].registration}) [${i+1}/${scheduledArrivals.length}]`)
     const photo = await getPhotoData(scheduledArrivals[i].registration)
     scheduledArrivals[i]['photo'] = photo
   }
@@ -226,7 +222,6 @@ async function updateData() {
   // get airframe data
   let counter = 0
   for (let i=0; i < arrivalsWithPhoto.length; i++){
-    console.log(`fetching airframe data for ${arrivalsWithPhoto[i].registration} [${i+1}/${arrivalsWithPhoto.length}]`)
     const airframeData = await getAirframeData(arrivalsWithPhoto[i].registration, unfindableAirframes)
     if(!airframeData) counter++
     arrivalsWithPhoto[i]['airframeData'] = airframeData
@@ -655,7 +650,7 @@ async function updateData() {
   cachedData = arrivalsWithPhoto
   fetchingInProgress = false 
   // store cached data and set fetching flag to false
-  console.log(`fetching state ${fetchingInProgress}`)
+  console.log('cache update complete')
   return cachedData
 }
 
@@ -669,7 +664,6 @@ const throttle = (updateData, timeDelay) => {
     // data is more than 5 minutes old, update data
     if (!throttleTimer && !fetchingInProgress) {
       console.log(`starting throttle timer for ${timeDelay/1000/60} minutes`)
-      console.log('updating cached data')
       await updateData()
       // reset throttle function to null after 5 mins to allow cache updates
       throttleTimer = setTimeout(() => {

@@ -54,7 +54,13 @@ Partly as a hobby project, but mostly as a portfolio project.
 ### Mar 17, 2023. Version 3.0.0
 * Visual update to the front end UI.
 * Added github and bmac buttons.
-* Added README.md to repo.
+* Added README.md.
+
+### Mar 21, 2023. Version 3.1.0
+* Desktop UI overhaul. Card sizes are now consistent. 
+* Added backdrop for smaller images.
+* Added `back-to-top` button.
+* Reduced server logging.
 
 ## Insights
 
