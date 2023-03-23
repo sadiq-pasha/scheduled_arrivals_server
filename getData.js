@@ -1,40 +1,36 @@
 // module imports 
 const axios = require('axios')
-// const moment = require('moment')
-// mongoose model for database queries
-// const AirframeDataModel = require('./airframeModel')
-// scheduled function and unknown airframe list
-const cronjobs = require('./cronjobs')
+const moment = require('moment')
 
-// human readable keys mapping for data from goFlightLabs
-// eslint-disable-next-line no-unused-vars
+// mongoose model for database queries
+const AirframeDataModel = require('./airframeModel')
+
+// human readable keys mapping for data from aeroDataBox
 const humanReadableDataKeys = {
-  airplaneIataType: 'Aircraft Type',
-  airplaneId: 'Manufacturers ID',
-  codeIataAirline: 'Airline Code',
-  codeIataPlaneLong: 'Aircraft Type Code',
-  codeIataPlaneShort: 'Aircraft Type Code abbr.',
-  codeIcaoAirline: 'ICAO Airline Code',
-  constructionNumber: 'Construction Number',
-  deliveryDate: 'Date Delivered',
-  enginesType: 'Engine Type',
-  firstFlight: 'First Flight',
-  hexIcaoAirplane: 'Aircraft Hex Code',
-  lineNumber: 'Aircraft Line Number',
-  modelCode: 'Aircraft Model Code',
-  numberRegistration: 'Registration',
-  numberTestRgistration: 'Test Registration',
-  planeAge: 'Aircraft Age',
-  planeClass: 'Aircraft Class',
-  planeModel: 'Aircraft Model',
-  planeOwner: 'Aircraft Owner',
-  planeSeries: 'Aircraft Series',
-  planeStatus: 'Airframe Status',
-  productionLine: 'Production Line',
-  registrationDate: 'Registration Date',
-  rolloutDate: 'Roll out Date'
+  'id': null,
+  'reg': 'Aircraft Tail Number',
+  'active':null,
+  'serial': 'Serial Number',
+  'hexIcao': 'Hex Code',
+  'airlineId': null,
+  'airlineName': 'Airline',
+  'iataCodeShort': null,
+  'iataCodeLong': null,
+  'model': 'Aircraft Model',
+  'modelCode': 'Model Code',
+  'numSeats': 'Seating Capacity',
+  'rolloutDate': 'Roll Out Date',
+  'firstFlightDate': 'First Flight',
+  'deliveryDate': 'Delivery Date',
+  'registrationDate': 'Registration Date',
+  'typeName': 'Aircraft Type',
+  'numEngines': 'Number of Engines',
+  'engineType': 'Engine Type',
+  'isFreighter': null,
+  'productionLine': 'Production Line',
+  'ageYears': 'Age',
+  'verified': 'Verified Information'
 }
-  
 // get scheduled arrivals data from flightaware.com AeroAPI
 async function getScheduledArrivals() {
   const fetchTime = new Date()
@@ -130,66 +126,60 @@ async function getPhotoData(tailNumber) {
   }
 }
 
-// get airframe data from database or goflightlabs
+// get airframe data from database or aerodatabox
 // eslint-disable-next-line no-unused-vars
-async function getAirframeData(tailNumber, unfindableAirframes) {
-// currently disabled: goflightlabs API unavailable
-  return null
+async function getAirframeData(tailNumber) {
+  // find airframe data in database
+  const airframeData = await AirframeDataModel.find({registration: tailNumber})
+  if (airframeData.length > 0) {
+    console.log(`airframe data for ${tailNumber} from database`)
+    return airframeData[0].data
+  } else {
+    // query aerodatabox api for airframe data
+    try {
+      const airframeDataAeroDataBox = await axios.get(`https://aerodatabox.p.rapidapi.com/aircrafts/reg/${tailNumber}`,
+        {
+          headers: {
+            'X-RapidAPI-Key': `${process.env.aerodatabox_api_key}`,
+            'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com'
+          }
+        })
 
-  // if airframe previously searched and failed, don't try again
-  //   if (unfindableAirframes.includes(tailNumber)) {
-  //     console.log(`airframe data for ${tailNumber} is unfindable`)
-  //     return null
-  //   }
-  //   // find airframe data in database
-  //   const airframeData = await AirframeDataModel.find({registration: tailNumber})
-  //   if (airframeData.length > 0) {
-  //     console.log(`airframe data for ${tailNumber} from database`)
-  //     return airframeData[0].data
-  //   } else {
-  //     // query goflightlabs api for airframe data
-  //     try {
-  //       const airframeDataGoFlightLabs = await axios.get(`https://app.goflightlabs.com/airplanes?access_key=${process.env.flightlabs_api_key}&numberRegistration=${tailNumber}`)
-  //       if (airframeDataGoFlightLabs.data.success){
-  //         console.log(`airframe data for ${tailNumber} from goflightlabs`)
-  //         // js magic to remove entries with no data. 
-  //         // use Object.entries to split each key, value pair into an array.
-  //         // use filter to remove any pair where value[1].length is not greater than 1
-  //         // use map to convert valid iso 8601 dates into date strings
-  //         // also map returned keys into human readable keys
-  //         // use Object.fromEntries to create a new object with the returned values
-  //         const goflightlabsdata = Object.fromEntries(
-  //           Object.entries(airframeDataGoFlightLabs.data.data[0])
-  //             .filter(value => value[1] && value[1].length > 1)
-  //             .map((value) => {
-  //               if (Object.keys(humanReadableDataKeys).includes(value[0])){
-  //                 value[0] = humanReadableDataKeys[value[0]]
-  //               }
-  //               if (moment(value[1], 'YYYY-MM-DDTHH:mm:ss.sssZ', true).isValid()){
-  //                 return [value[0], new Date(value[1]).toDateString()]
-  //               }else return [value[0],value[1]]
-  //             }))
-  //         // save airframe data to database to avoid repeated queries
-  //         const newAirframe = new AirframeDataModel({
-  //           registration: tailNumber,
-  //           data: goflightlabsdata
-  //         })
-  //         console.log('Saving airframe data to database')
-  //         newAirframe.save()
-  //         return goflightlabsdata
-  //       }  else {
-  //         // if airframe data not found, schedule for scraping
-  //         console.log(`moving ${tailNumber} to scheduled cronjob`)
-  //         cronjobs.unknownAirframes(tailNumber)
-  //         return null
-  //       }
-  //     } catch (error) {
-  //       // if airframe data not found, schedule for scraping
-  //       console.log(`moving ${tailNumber} to scheduled cronjob`)
-  //       cronjobs.unknownAirframes(tailNumber)
-  //       return null
-  //     }
-  //   }
+      // js magic to remove entries with no data. 
+      // use Object.entries to split each key, value pair into an array.
+      // use filter to remove any pair where value doesn't exist or key is defined as null
+      // use map to convert valid iso 8601 dates into date strings
+      // also map returned keys into human readable keys
+      // use Object.fromEntries to create a new object with the returned values
+      console.log(airframeDataAeroDataBox.data)
+      const airframedataSanitized =  Object.fromEntries(
+        Object.entries(airframeDataAeroDataBox.data)
+          .filter(value => value[1] && humanReadableDataKeys[value[0]])
+          .map((value) => {
+            if (Object.keys(humanReadableDataKeys).includes(value[0])){
+              value[0] = humanReadableDataKeys[value[0]]
+            }
+            if (moment(value[1], 'YYYY-MM-DDTHH:mm:ss', true).isValid()){
+              return [value[0], new Date(value[1]).toDateString()]
+            } else{
+              return [value[0],value[1]]
+            }
+          })
+          .sort(function(a,b){return a[0].localeCompare(b[0])})
+      )
+      // save airframe data to database to avoid repeated queries
+      const newAirframe = new AirframeDataModel({
+        registration: tailNumber,
+        data: airframedataSanitized
+      })
+      console.log('Saving airframe data to database')
+      newAirframe.save()
+      return airframedataSanitized
+    } catch (error) {
+      console.log(error.data)
+      return null
+    }
+  }
 }
 
 // flag for throttling requests if fetch is in progress
@@ -204,7 +194,8 @@ async function updateData() {
   console.log('updating cached data')
     
   // get list of unfindable airframes, so no redundant queries are made
-  const unfindableAirframes = await cronjobs.getUnfindableData()
+  //   const unfindableAirframes = await cronjobs.getUnfindableData()
+  
   // get scheduled arrivals data
   const scheduledArrivals = await getScheduledArrivals()
   if(scheduledArrivals === 'error') return ('error')
@@ -222,7 +213,7 @@ async function updateData() {
   // get airframe data
   let counter = 0
   for (let i=0; i < arrivalsWithPhoto.length; i++){
-    const airframeData = await getAirframeData(arrivalsWithPhoto[i].registration, unfindableAirframes)
+    const airframeData = await getAirframeData(arrivalsWithPhoto[i].registration)
     if(!airframeData) counter++
     arrivalsWithPhoto[i]['airframeData'] = airframeData
   }
