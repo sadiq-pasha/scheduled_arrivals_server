@@ -151,7 +151,6 @@ async function getAirframeData(tailNumber) {
       // use map to convert valid iso 8601 dates into date strings
       // also map returned keys into human readable keys
       // use Object.fromEntries to create a new object with the returned values
-      console.log(airframeDataAeroDataBox.data)
       const airframedataSanitized =  Object.fromEntries(
         Object.entries(airframeDataAeroDataBox.data)
           .filter(value => value[1] && humanReadableDataKeys[value[0]])
@@ -172,7 +171,7 @@ async function getAirframeData(tailNumber) {
         registration: tailNumber,
         data: airframedataSanitized
       })
-      console.log('Saving airframe data to database')
+      console.log(`Saving ${tailNumber} airframe data to database`)
       newAirframe.save()
       return airframedataSanitized
     } catch (error) {
