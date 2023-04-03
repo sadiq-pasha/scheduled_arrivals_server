@@ -1,8 +1,10 @@
+/* eslint-disable no-irregular-whitespace */
 // module imports
 require('dotenv').config()
 const cors = require('cors') 
 const mongoose = require('mongoose')
 const path = require('path')
+const cron = require('node-cron')
 
 // initialize express server
 const express = require('express')
@@ -30,17 +32,19 @@ app.use(express.static('build'))
 app.use(cors())
 
 // schedule cronjob every 30 mins past the hour
-// const scheduledFunctions = require('./cronjobs')
-// cron.schedule('*/30 * * * *', function() {
-//   scheduledFunctions.scrapeUnknownAirframes()
-// })
+const scheduledFunctions = require('./cronjobs')
+cron.schedule('0 * * * *', function() {
+  scheduledFunctions.resetCacheUpdateFlag()
+})
 
 // route handling
 app.get('/data', async(request, response) => {
   requestCounter = requestCounter + 1
-  console.log(`data requested #${requestCounter}`)
+
   const data = await getData()
+
   if (data === 'error') {
+    response.statusCode = 503
     response.json({error:'flightaware API unavailable'}).end()
   } else {
     response.json(data)

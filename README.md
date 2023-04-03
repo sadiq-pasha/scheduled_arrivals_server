@@ -62,6 +62,12 @@ Partly as a hobby project, but mostly as a portfolio project.
 * Added `back-to-top` button.
 * Reduced server logging.
 
+### Apr 2, 2023. Version 3.2.0
+* Added weather section! 
+* Added METAR section!
+* chatGPT powered METAR decoder.
+* Fixed a bug with multiple requests. Throttle now works ideally.
+
 ## Insights
 
 ### Built using:
@@ -137,11 +143,10 @@ Since the data being sent is list of aircraft landing within the next hour, it d
 
 ## TODO list
 
-* Currently airframe data fetching is disabled as I have not been able to find a reliable source of airframe information.
-* Add a back to top button.
-* Make website better looking on desktop. Card sizes currently incosistent.
 * This website format could be expanded to include other airports in the future. 
 * I have tried to include comments where necessary, that being said I am a huge fan of well commented code and there can always be more comments.
+* Add premium features.
+* Add user accounts and features.
 
 ## Author
 My name is Sadiq! If you've read this far, I'm glad I've kept you interested. 

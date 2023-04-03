@@ -1,70 +1,19 @@
-const moment = require('moment')
+const decodedMetar = 'Station: KLAX (Los Angeles International Airport)\n' +
+    '\n' +
+    'Time: 280353Z (03:53 UTC on the 28th day of the month)\n' +
+    '\n' +
+    'Wind: 260 degrees at 9 knots\n' +
+    '\n' +
+    'Visibility: 10 statute miles\n' +
+    '\n' +
+    'Clouds: Clear\n' +
+    '\n' +
+    'Temperature: 14°C\n' +
+    '\n' +
+    'Dew Point: 7°C\n' +
+    '\n' +
+    'Altimeter: 3011 inches of mercury\n' +
+    '\n' +
+    'Remarks: Automated station without precipitation discriminator (AO2), Sea Level Pressure: 1019.6 hPa (SLP196), temperature 14.4°C, dew point 7.2°C, automated station with precipitation discriminator ($)'
 
-const humanReadableDataKeys = {
-  'id': null,
-  'reg': 'Aircraft Tail Number',
-  'active':null,
-  'serial': 'Serial Number',
-  'hexIcao': 'Hex Code',
-  'airlineId': null,
-  'airlineName': 'Airline',
-  'iataCodeShort': null,
-  'iataCodeLong': null,
-  'model': 'Aircraft Model',
-  'modelCode': 'Model Code',
-  'numSeats': 'Seating Capacity',
-  'rolloutDate': 'Roll Out Date',
-  'firstFlightDate': 'First Flight',
-  'deliveryDate': 'Delivery Date',
-  'registrationDate': 'Registration Date',
-  'typeName': 'Aircraft Type',
-  'numEngines': 'Number of Engines',
-  'engineType': 'Engine Type',
-  'isFreighter': null,
-  'productionLine': 'Production Line',
-  'ageYears': 'Age',
-  'verified': 'Verified Information'
-}
-  
-const test= {
-  'id': 1779,
-  'reg': 'N390HA',
-  'active': true,
-  'serial': '1389',
-  'hexIcao': 'A48379',
-  'airlineName': 'Hawaiian Airlines',
-  'iataCodeShort': '332',
-  'icaoCode': 'A332',
-  'model': 'A332',
-  'modelCode': '330-243',
-  'numSeats': 278,
-  'rolloutDate': '2013-01-18',
-  'firstFlightDate': '2013-01-18',
-  'deliveryDate': '2013-02-26',
-  'registrationDate': '2013-02-25',
-  'typeName': 'Airbus A330-200',
-  'numEngines': 2,
-  'engineType': 'Jet',
-  'isFreighter': false,
-  'productionLine': 'Airbus A330',
-  'ageYears': 10.2,
-  'verified': true,
-  'numRegistrations': 1
-}
-const airframedataSanitized =  Object.fromEntries(
-  Object.entries(test)
-    .filter(value => value[1] && humanReadableDataKeys[value[0]])
-    .map((value) => {
-      if (Object.keys(humanReadableDataKeys).includes(value[0])){
-        value[0] = humanReadableDataKeys[value[0]]
-      }
-      if (moment(value[1], 'YYYY-MM-DDTHH:mm:ss', true).isValid()){
-        return [value[0], new Date(value[1]).toDateString()]
-      } else{
-        return [value[0],value[1]]
-      }
-    })
-    .sort(function(a,b){return a[0].localeCompare(b[0])})
-)
-
-console.log(airframedataSanitized)
+console.log(decodedMetar)
