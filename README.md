@@ -68,6 +68,10 @@ Partly as a hobby project, but mostly as a portfolio project.
 * chatGPT powered METAR decoder.
 * Fixed a bug with multiple requests. Throttle now works ideally.
 
+### Apr 23, 2023. Version 3.2.1
+* Added hamburger menu bar. 
+* Moved ATC comms buttons to menu drawer. 
+
 ## Insights
 
 ### Built using:
