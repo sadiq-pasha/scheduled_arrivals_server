@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // module imports 
 const axios = require('axios')
 const moment = require('moment')
@@ -135,49 +136,50 @@ async function getAirframeData(tailNumber) {
     console.log(`airframe data for ${tailNumber} from database`)
     return airframeData[0].data
   } else {
+    return null
     // query aerodatabox api for airframe data
-    try {
-      const airframeDataAeroDataBox = await axios.get(`https://aerodatabox.p.rapidapi.com/aircrafts/reg/${tailNumber}`,
-        {
-          headers: {
-            'X-RapidAPI-Key': `${process.env.aerodatabox_api_key}`,
-            'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com'
-          }
-        })
+    // try {
+    //   const airframeDataAeroDataBox = await axios.get(`https://aerodatabox.p.rapidapi.com/aircrafts/reg/${tailNumber}`,
+    //     {
+    //       headers: {
+    //         'X-RapidAPI-Key': `${process.env.aerodatabox_api_key}`,
+    //         'X-RapidAPI-Host': 'aerodatabox.p.rapidapi.com'
+    //       }
+    //     })
 
-      // js magic to remove entries with no data. 
-      // use Object.entries to split each key, value pair into an array.
-      // use filter to remove any pair where value doesn't exist or key is defined as null
-      // use map to convert valid iso 8601 dates into date strings
-      // also map returned keys into human readable keys
-      // use Object.fromEntries to create a new object with the returned values
-      const airframedataSanitized =  Object.fromEntries(
-        Object.entries(airframeDataAeroDataBox.data)
-          .filter(value => value[1] && humanReadableDataKeys[value[0]])
-          .map((value) => {
-            if (Object.keys(humanReadableDataKeys).includes(value[0])){
-              value[0] = humanReadableDataKeys[value[0]]
-            }
-            if (moment(value[1], 'YYYY-MM-DDTHH:mm:ss', true).isValid()){
-              return [value[0], new Date(value[1]).toDateString()]
-            } else{
-              return [value[0],value[1]]
-            }
-          })
-          .sort(function(a,b){return a[0].localeCompare(b[0])})
-      )
-      // save airframe data to database to avoid repeated queries
-      const newAirframe = new AirframeDataModel({
-        registration: tailNumber,
-        data: airframedataSanitized
-      })
-      console.log(`Saving ${tailNumber} airframe data to database`)
-      newAirframe.save()
-      return airframedataSanitized
-    } catch (error) {
-      console.log(error.data)
-      return null
-    }
+    //   // js magic to remove entries with no data. 
+    //   // use Object.entries to split each key, value pair into an array.
+    //   // use filter to remove any pair where value doesn't exist or key is defined as null
+    //   // use map to convert valid iso 8601 dates into date strings
+    //   // also map returned keys into human readable keys
+    //   // use Object.fromEntries to create a new object with the returned values
+    //   const airframedataSanitized =  Object.fromEntries(
+    //     Object.entries(airframeDataAeroDataBox.data)
+    //       .filter(value => value[1] && humanReadableDataKeys[value[0]])
+    //       .map((value) => {
+    //         if (Object.keys(humanReadableDataKeys).includes(value[0])){
+    //           value[0] = humanReadableDataKeys[value[0]]
+    //         }
+    //         if (moment(value[1], 'YYYY-MM-DDTHH:mm:ss', true).isValid()){
+    //           return [value[0], new Date(value[1]).toDateString()]
+    //         } else{
+    //           return [value[0],value[1]]
+    //         }
+    //       })
+    //       .sort(function(a,b){return a[0].localeCompare(b[0])})
+    //   )
+    //   // save airframe data to database to avoid repeated queries
+    //   const newAirframe = new AirframeDataModel({
+    //     registration: tailNumber,
+    //     data: airframedataSanitized
+    //   })
+    //   console.log(`Saving ${tailNumber} airframe data to database`)
+    //   newAirframe.save()
+    //   return airframedataSanitized
+    // } catch (error) {
+    //   console.log(error.data)
+    //   return null
+    // }
   }
 }
 
